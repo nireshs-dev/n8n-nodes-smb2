@@ -1,19 +1,27 @@
 {
-  "name": "n8n-nodes-<...>",
+  "name": "n8n-nodes-smb2",
   "version": "0.1.0",
-  "description": "",
+  "description": "Transfer files via Samba (SMB2) with n8n",
   "keywords": [
-    "n8n-community-node-package"
+    "n8n-community-node-package",
+    "smb2",
+    "smb",
+    "samba",
+    "binary",
+    "file",
+    "transfer",
+    "node",
+    "n8n"
   ],
   "license": "MIT",
-  "homepage": "",
+  "homepage": "https://github.com/drudge/n8n-nodes-smb2",
   "author": {
-    "name": "",
-    "email": ""
+    "name": "Nick Penree",
+    "email": "nick@penree.com"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/<...>/n8n-nodes-<...>.git"
+    "url": "https://github.com/drudge/n8n-nodes-smb2.git"
   },
   "engines": {
     "node": ">=18.10",
@@ -36,12 +44,10 @@
   "n8n": {
     "n8nNodesApiVersion": 1,
     "credentials": [
-      "dist/credentials/ExampleCredentialsApi.credentials.js",
-      "dist/credentials/HttpBinApi.credentials.js"
+      "dist/credentials/Smb2Api.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/ExampleNode/ExampleNode.node.js",
-      "dist/nodes/HttpBin/HttpBin.node.js"
+      "dist/nodes/SMB2/Smb2.node.js"
     ]
   },
   "devDependencies": {
@@ -50,9 +56,14 @@
     "eslint-plugin-n8n-nodes-base": "^1.16.1",
     "gulp": "^4.0.2",
     "prettier": "^3.3.2",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "@types/node": "^18.10.0"
   },
   "peerDependencies": {
     "n8n-workflow": "*"
+  },
+  "dependencies": {
+    "@awo00/smb2": "^1.1.0",
+    "tmp-promise": "^3.0.3"
   }
 }

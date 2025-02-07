@@ -1,46 +1,75 @@
 ![Banner image](https://user-images.githubusercontent.com/10284570/173569848-c624317f-42b1-45a6-ab09-f0ea3c247648.png)
+# n8n-nodes-smb2
 
-# n8n-nodes-starter
+This is an n8n community node that lets you interact with Samba/SMB2 file shares in your n8n workflows. It enables reading, writing, and managing files on SMB2-compatible network shares.
 
-This repo contains example nodes to help you get started building your own custom integrations for [n8n](n8n.io). It includes the node linter and other dependencies.
+[n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/reference/license/) workflow automation platform.
 
-To make your custom node available to the community, you must create it as an npm package, and [submit it to the npm registry](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry).
+- [Installation](#installation)
+- [Operations](#operations)
+- [Credentials](#credentials)
+- [Compatibility](#compatibility)
+- [Resources](#resources)
 
-## Prerequisites
+## Installation
 
-You need the following installed on your development machine:
+Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation.
 
-* [git](https://git-scm.com/downloads)
-* Node.js and pnpm. Minimum version Node 18. You can find instructions on how to install both using nvm (Node Version Manager) for Linux, Mac, and WSL [here](https://github.com/nvm-sh/nvm). For Windows users, refer to Microsoft's guide to [Install NodeJS on Windows](https://docs.microsoft.com/en-us/windows/dev-environment/javascript/nodejs-on-windows).
-* Install n8n with:
-  ```
-  pnpm install n8n -g
-  ```
-* Recommended: follow n8n's guide to [set up your development environment](https://docs.n8n.io/integrations/creating-nodes/build/node-development-environment/).
+## Operations
 
-## Using this starter
+The node supports the following operations:
 
-These are the basic steps for working with the starter. For detailed guidance on creating and publishing nodes, refer to the [documentation](https://docs.n8n.io/integrations/creating-nodes/).
+### Download
+Downloads a file from the SMB share.
+- **Path**: Full path to the file on the share (e.g., `/public/documents/file.txt`)
+- **Put Output File in Field**: Name of the binary property to store the file data (default: `data`)
 
-1. [Generate a new repository](https://github.com/n8n-io/n8n-nodes-starter/generate) from this template repository.
-2. Clone your new repo:
-   ```
-   git clone https://github.com/<your organization>/<your-repo-name>.git
-   ```
-3. Run `pnpm i` to install dependencies.
-4. Open the project in your editor.
-5. Browse the examples in `/nodes` and `/credentials`. Modify the examples, or replace them with your own nodes.
-6. Update the `package.json` to match your details.
-7. Run `pnpm lint` to check for errors or `pnpm lintfix` to automatically fix errors when possible.
-8. Test your node locally. Refer to [Run your node locally](https://docs.n8n.io/integrations/creating-nodes/test/run-node-locally/) for guidance.
-9. Replace this README with documentation for your node. Use the [README_TEMPLATE](README_TEMPLATE.md) to get started.
-10. Update the LICENSE file to use your details.
-11. [Publish](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry) your package to npm.
+### Upload
+Uploads a file to the SMB share.
+- **Path**: Destination path on the share where the file will be saved
 
-## More information
+### List
+Lists the contents of a directory on the SMB share.
+- **Path**: Directory path to list (e.g., `/public/folder`)
 
-Refer to our [documentation on creating nodes](https://docs.n8n.io/integrations/creating-nodes/) for detailed information on building your own nodes.
+### Delete
+Deletes a file or folder from the SMB share.
+- **Path**: Path to the file or folder to delete
 
-## License
+### Rename/Move
+Renames or moves a file or folder on the SMB share.
+- **Old Path**: Current path of the file/folder
+- **New Path**: New path/name for the file/folder
 
-[MIT](https://github.com/n8n-io/n8n-nodes-starter/blob/master/LICENSE.md)
+## Credentials
+
+You need the following credentials to connect to an SMB share:
+
+- **Host**: The hostname or IP address of the SMB server
+- **Share Name**: The name of the share to connect to
+- **Username**: Username for authentication
+- **Password**: Password for authentication
+- **Domain**: (Optional) Domain name for Active Directory authentication
+
+## Compatibility
+
+- Requires n8n version 1.0.0 or later
+- Node.js v18.10 or later
+- Compatible with SMB2/SMB3 protocol
+
+## Resources
+
+* [n8n community nodes documentation](https://docs.n8n.io/integrations/community-nodes/)
+* [SMB2 Protocol Documentation](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-smb2/5606ad47-5ee0-437a-817e-70c366052962)
+* [Samba Documentation](https://www.samba.org/samba/docs/)
+
+## Error Handling
+
+The node provides detailed error messages for common SMB issues:
+- Access denied errors
+- Network connectivity issues
+- File/path not found
+- Share not found
+- Authentication failures
+- Quota issues
+- File sharing violations
