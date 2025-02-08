@@ -1,18 +1,17 @@
-import type {
-	IExecuteFunctions,
-	INodeExecutionData,
-	INodeType,
-	INodeTypeDescription,
+import {
+	NodeOperationError,
+	type IExecuteFunctions,
+	type INodeExecutionData,
+	type INodeType,
+	type INodeTypeDescription,
 } from 'n8n-workflow';
-import { NodeApiError, NodeOperationError } from 'n8n-workflow';
-import { Client } from '@awo00/smb2';
 import { basename, join } from 'path';
 import * as fs from 'fs';
 import { file as tmpFile } from 'tmp-promise';
 import DirectoryEntry from '@awo00/smb2/dist/protocol/models/DirectoryEntry';
 import { pipeline } from 'stream';
 import { promisify, debuglog } from 'util';
-import { getReadableError } from './helpers';
+import { connectToSmbServer, getReadableError } from './helpers';
 const pipelineAsync = promisify(pipeline);
 
 const debug = debuglog('n8n-nodes-smb2');
@@ -333,38 +332,10 @@ export class Smb2 implements INodeType {
 		const operation = this.getNodeParameter('operation', 0) as string;
 
 		let client;
-		let session;
 		let tree;
 
 		try {
-			try {
-				const credentials = await this.getCredentials('smb2Api') as {
-					host: string;
-					domain: string;
-					username: string;
-					password: string;
-					share: string;
-				};
-				client = new Client(credentials.host);
-
-				debug('Connecting to %s on %s as (%s\\%s)', credentials.share, credentials.host, credentials.domain, credentials.username);
-				// debug('smb://%s:%s@%s/%s', credentials.username, credentials.password, credentials.host, credentials.share);
-
-				session = await client.authenticate({
-					domain: credentials.domain,
-					username: credentials.username,
-					password: credentials.password,
-				});
-
-				tree = await session.connectTree(credentials.share);
-			} catch (error) {
-				debug('Connect error: ', error);
-				const readableError = getReadableError(error);
-				if (this.continueOnFail()) {
-					return [[{ json: { error: `Failed to connect to SMB server: ${readableError}` } }]];
-				}
-				throw new NodeApiError(this.getNode(), error, { message: `Failed to connect to SMB server: ${readableError}` });
-			}
+			({ client, tree } = await connectToSmbServer.call(this));
 
 			for (let i = 0; i < items.length; i++) {
 				if (operation === 'list') {

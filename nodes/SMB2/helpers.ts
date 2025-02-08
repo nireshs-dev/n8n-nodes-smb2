@@ -1,3 +1,8 @@
+import { Client } from "@awo00/smb2";
+import Session from "@awo00/smb2/dist/client/Session";
+import Tree from "@awo00/smb2/dist/client/Tree";
+import { IExecuteFunctions, ITriggerFunctions, NodeApiError } from "n8n-workflow";
+
 const SMB_ERROR_CODES: { [key: number]: string } = {
 	3221225525: 'Access Denied - Check your permissions for this file/folder',
 	3221225506: 'File/Path Not Found',
@@ -40,4 +45,34 @@ export function getReadableError(error: any): string {
 	}
 
 	return error.message || String(error);
+}
+
+export async function connectToSmbServer(this: IExecuteFunctions | ITriggerFunctions): Promise<{ client: Client; session: Session; tree: Tree }> {
+	try {
+		const credentials = await this.getCredentials('smb2Api') as unknown as Smb2Credentials;
+		let client = new Client(credentials.host, {
+			port: credentials.port,
+			connectTimeout: credentials.connectTimeout,
+			requestTimeout: credentials.requestTimeout,
+		});
+		let session: any;
+		let tree: any;
+
+		// debug('Connecting to %s on %s as (%s\\%s)', credentials.share, credentials.host, credentials.domain, credentials.username);
+		// debug('smb://%s:%s@%s/%s', credentials.username, credentials.password, credentials.host, credentials.share);
+
+		session = await client.authenticate({
+			domain: credentials.domain,
+			username: credentials.username,
+			password: credentials.password,
+		});
+
+		tree = await session.connectTree(credentials.share);
+
+		return { client, session, tree };
+	} catch (error) {
+		// debug('Connect error: ', error);
+		const readableError = getReadableError(error);
+		throw new NodeApiError(this.getNode(), error, { message: `Failed to connect to SMB server: ${readableError}` });
+	}
 }

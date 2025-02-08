@@ -1,5 +1,4 @@
 import { Client } from '@awo00/smb2';
-import Session from '@awo00/smb2/dist/client/Session';
 import {
 	type INodeType,
 	type INodeTypeDescription,
@@ -8,7 +7,7 @@ import {
 	ApplicationError,
 } from 'n8n-workflow';
 import { debuglog } from 'util';
-import { getReadableError } from '../Smb2/helpers';
+import { connectToSmbServer, getReadableError } from '../Smb2/helpers';
 
 const debug = debuglog('n8n-nodes-smb2');
 
@@ -237,31 +236,12 @@ export class Smb2Trigger implements INodeType {
 		const recursive = this.getNodeParameter('recursive') as boolean;
 
 		let client: Client;
-		let session: Session;
 		let tree;
 		let closeFunction;
 		let path;
 
 		try {
-			const credentials = await this.getCredentials('smb2Api') as {
-				host: string;
-				domain: string;
-				username: string;
-				password: string;
-				share: string;
-			};
-			client = new Client(credentials.host);
-
-			debug('Connecting to %s on %s as (%s\\%s)', credentials.share, credentials.host, credentials.domain, credentials.username);
-			// debug('smb://%s:%s@%s/%s', credentials.username, credentials.password, credentials.host, credentials.share);
-
-			session = await client.authenticate({
-				domain: credentials.domain,
-				username: credentials.username,
-				password: credentials.password,
-			});
-
-			tree = await session.connectTree(credentials.share);
+			({ client, tree } = await connectToSmbServer.call(this));
 
 			if (triggerOn === 'specificFolder' && event !== 'watchFolderUpdated') {
 				path = this.getNodeParameter('folderToWatch', '', { extractValue: true }) as string;
@@ -273,7 +253,7 @@ export class Smb2Trigger implements INodeType {
 				path,
 				(response) => {
 					debug('Response: %s', JSON.stringify(response.body));
-					const changeType = response.body.changeType; // Extract change type from response
+					const changeType = response.body.changeType;
 
 					// Map SMB2 change types to user-selected options
 					const eventMap: Record<number, string> = {
@@ -284,7 +264,7 @@ export class Smb2Trigger implements INodeType {
 						0x05: "folderDeleted",
 						0x06: "folderUpdated"
 					};
-
+					debug('Change type: %s | %s | %s', changeType, eventMap[changeType], event);
 					if (eventMap[changeType] === event) {
 						this.emit([this.helpers.returnJsonArray(response.body)]);
 					}
@@ -294,6 +274,7 @@ export class Smb2Trigger implements INodeType {
 
 			closeFunction = async function () {
 				await stopFunction();
+				await client.close();
 			};
 		} catch (error) {
 			debug('Connect error: ', error);

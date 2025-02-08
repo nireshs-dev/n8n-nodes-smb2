@@ -8,7 +8,7 @@ export class Smb2Api implements ICredentialType {
 	displayName = 'Samba (SMB2) API';
 	properties: INodeProperties[] = [
 		{
-			displayName: 'Host',
+			displayName: 'Server',
 			name: 'host',
 			type: 'string',
 			required: true,
@@ -39,11 +39,31 @@ export class Smb2Api implements ICredentialType {
 			default: '',
 		},
 		{
+			displayName: 'Port',
+			name: 'port',
+			type: 'number',
+			default: 445,
+		},
+		{
 			displayName: 'Share Name',
 			name: 'share',
 			type: 'string',
 			required: true,
 			default: '',
+		},
+		{
+			displayName: 'Connect Timeout',
+			name: 'connectTimeout',
+			type: 'number',
+			description: 'Connection timeout in ms',
+			default: 15000,
+		},
+		{
+			displayName: 'Request Timeout',
+			name: 'requestTimeout',
+			description: 'Request timeout in ms',
+			type: 'number',
+			default: 15000,
 		},
 	];
 }
