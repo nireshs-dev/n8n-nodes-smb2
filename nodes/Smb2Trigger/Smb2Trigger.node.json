@@ -1,0 +1,22 @@
+{
+	"node": "n8n-nodes-smb2.Smb2Trigger",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Data & Storage", "Development", "Utility"],
+	"resources": {
+		"credentialDocumentation": [
+			{
+				"url": "https://github.com/drudge/n8n-nodes-smb2"
+			}
+		],
+		"primaryDocumentation": [
+			{
+				"url": "https://github.com/drudge/n8n-nodes-smb2"
+			}
+		]
+	},
+	"alias": ["SMB","SMB2", "Samba", "SMB3", "CIFS","Binary", "File", "Trigger"],
+	"subcategories": {
+		"Core Nodes": ["Files", "Other Trigger Nodes"]
+	}
+}

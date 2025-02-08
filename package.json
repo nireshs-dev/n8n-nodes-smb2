@@ -47,7 +47,8 @@
       "dist/credentials/Smb2Api.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/SMB2/Smb2.node.js"
+      "dist/nodes/Smb2/Smb2.node.js",
+      "dist/nodes/Smb2Trigger/Smb2Trigger.node.js"
     ]
   },
   "devDependencies": {
