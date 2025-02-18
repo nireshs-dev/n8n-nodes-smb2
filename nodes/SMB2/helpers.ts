@@ -1,7 +1,26 @@
 import { Client } from "@awo00/smb2";
 import Session from "@awo00/smb2/dist/client/Session";
+import File from "@awo00/smb2/dist/client/File";
 import Tree from "@awo00/smb2/dist/client/Tree";
+import FilePipePrinterAccess_1 from "@awo00/smb2/dist/protocol/smb2/FilePipePrinterAccess";
 import { IExecuteFunctions, ITriggerFunctions, NodeApiError } from "n8n-workflow";
+import { debuglog } from 'util';
+
+const debug = debuglog('n8n-nodes-smb2');
+
+Tree.prototype.renameFile = async function (path: string, newPath: string) {
+	const file = new File(this);
+	// @ts-ignore
+	this.registerFile(file);
+	const desiredAccess =  FilePipePrinterAccess_1.Delete |             // 65536 - Needed to remove old filename
+		FilePipePrinterAccess_1.WriteAttributes |    // 256 - Needed to modify file attributes
+		FilePipePrinterAccess_1.ReadAttributes |
+		FilePipePrinterAccess_1.ReadControl |
+		FilePipePrinterAccess_1.Synchronize;
+		await file.open(path, { desiredAccess: desiredAccess });
+		await file.rename(newPath);
+		await file.close();
+}
 
 const SMB_ERROR_CODES: { [key: number]: string } = {
 	3221225525: 'Access Denied - Check your permissions for this file/folder',
@@ -58,8 +77,8 @@ export async function connectToSmbServer(this: IExecuteFunctions | ITriggerFunct
 		let session: any;
 		let tree: any;
 
-		// debug('Connecting to %s on %s as (%s\\%s)', credentials.share, credentials.host, credentials.domain, credentials.username);
-		// debug('smb://%s:%s@%s/%s', credentials.username, credentials.password, credentials.host, credentials.share);
+		debug('Connecting to %s on %s as (%s\\%s) [connectTimeout: %s, requestTimeout: %s]', credentials.share, credentials.host, credentials.domain, credentials.username, credentials.connectTimeout, credentials.requestTimeout);
+		debug('smb://%s:%s@%s/%s', credentials.username, credentials.password, credentials.host, credentials.share);
 
 		session = await client.authenticate({
 			domain: credentials.domain,
@@ -71,7 +90,7 @@ export async function connectToSmbServer(this: IExecuteFunctions | ITriggerFunct
 
 		return { client, session, tree };
 	} catch (error) {
-		// debug('Connect error: ', error);
+		debug('Connect error: ', error);
 		const readableError = getReadableError(error);
 		throw new NodeApiError(this.getNode(), error, { message: `Failed to connect to SMB server: ${readableError}` });
 	}
