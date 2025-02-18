@@ -4,7 +4,7 @@ import {
 	type INodeTypeDescription,
 	type ITriggerResponse,
 	type ITriggerFunctions,
-	ApplicationError,
+	NodeApiError,
 } from 'n8n-workflow';
 import { debuglog } from 'util';
 import { connectToSmbServer, getReadableError } from '../Smb2/helpers';
@@ -279,7 +279,7 @@ export class Smb2Trigger implements INodeType {
 		} catch (error) {
 			debug('Connect error: ', error);
 			const errorMessage = getReadableError(error);
-			throw new ApplicationError(`Failed to connect to SMB server: ${errorMessage}`, { extra: {...error, message:error.body?.toString('utf8') } , level: 'error', tags: ['smb2'] });
+			throw new NodeApiError(this.getNode(), error, {message: (`Failed to connect to SMB server: ${errorMessage}`)});
 		}
 
 		return {
