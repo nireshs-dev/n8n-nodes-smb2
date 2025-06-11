@@ -49,6 +49,11 @@ export class Smb2 implements INodeType {
 						action: 'Delete a file or folder',
 					},
 					{
+			      name: 'Create',
+			      value: 'create',
+			      description: 'Create a new directory',
+			    },
+					{
 						name: 'Download',
 						value: 'download',
 						description: 'Download a file',
