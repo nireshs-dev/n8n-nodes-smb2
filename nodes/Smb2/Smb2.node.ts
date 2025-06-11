@@ -98,7 +98,7 @@ export class Smb2 implements INodeType {
 			  },
 			  default: '',
 			  description: 'The path of the directory to create, e.g., /folder/subfolder',
-			}
+			},
 
 			
 			// ----------------------------------
@@ -365,29 +365,33 @@ export class Smb2 implements INodeType {
 			for (let i = 0; i < items.length; i++) {
 
 
-				if (resource === 'directory') {
-						if (operation === 'create') {
-							const directoryPath = this.getNodeParameter('directoryPath', 0) as string;
-					
-							const client = new SMB2({
-								share: credentials.share,
-								domain: credentials.domain || '',
-								username: credentials.username,
-								password: credentials.password,
-								port: credentials.port || 445,
-								host: credentials.host,
-							});
-					
-							const result = await new Promise((resolve, reject) => {
-								client.mkdir(directoryPath, (err) => {
-									if (err) reject(err);
-									else resolve({ success: true, path: directoryPath });
-								});
-							});
-					
-							return this.helpers.returnJsonArray([result]);
+				// Handle directory creation
+				if (operation === 'create') {
+					const directoryPath = this.getNodeParameter('directoryPath', i) as string;
+					try {
+						await tree.createDirectory(directoryPath);
+						returnItems.push({
+							json: { success: true, path: directoryPath },
+						});
+					} catch (error) {
+						debug('Create directory error:', error);
+						const readableError = getReadableError(error);
+						if (this.continueOnFail()) {
+							items[i].json.error = `Failed to create directory: ${readableError}`;
+							returnItems.push(items[i]);
+							continue;
 						}
+						throw new NodeOperationError(
+							this.getNode(),
+							`Failed to create directory: ${readableError}`,
+							{
+								description: 'Check your SMB connection settings and permissions',
+								itemIndex: i,
+							}
+						);
 					}
+					continue;
+				}
 				
 				if (operation === 'list') {
 					const path = this.getNodeParameter('path', i) as string;
