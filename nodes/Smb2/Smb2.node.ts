@@ -83,6 +83,25 @@ export class Smb2 implements INodeType {
 			},
 
 			// ----------------------------------
+			//         Directory Path
+			// ----------------------------------
+			{
+			  displayName: 'Directory Path',
+			  name: 'directoryPath',
+			  type: 'string',
+			  required: true,
+			  displayOptions: {
+			    show: {
+			      resource: ['directory'],
+			      operation: ['create'],
+			    },
+			  },
+			  default: '',
+			  description: 'The path of the directory to create, e.g., /folder/subfolder',
+			}
+
+			
+			// ----------------------------------
 			//         list
 			// ----------------------------------
 			{
