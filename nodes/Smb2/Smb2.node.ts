@@ -363,6 +363,32 @@ export class Smb2 implements INodeType {
 			({ client, tree } = await connectToSmbServer.call(this));
 
 			for (let i = 0; i < items.length; i++) {
+
+
+				if (resource === 'directory') {
+						if (operation === 'create') {
+							const directoryPath = this.getNodeParameter('directoryPath', 0) as string;
+					
+							const client = new SMB2({
+								share: credentials.share,
+								domain: credentials.domain || '',
+								username: credentials.username,
+								password: credentials.password,
+								port: credentials.port || 445,
+								host: credentials.host,
+							});
+					
+							const result = await new Promise((resolve, reject) => {
+								client.mkdir(directoryPath, (err) => {
+									if (err) reject(err);
+									else resolve({ success: true, path: directoryPath });
+								});
+							});
+					
+							return this.helpers.returnJsonArray([result]);
+						}
+					}
+				
 				if (operation === 'list') {
 					const path = this.getNodeParameter('path', i) as string;
 					const entries = await tree.readDirectory(path);
